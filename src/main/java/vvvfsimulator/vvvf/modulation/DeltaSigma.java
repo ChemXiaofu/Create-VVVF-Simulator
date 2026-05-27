@@ -1,4 +1,4 @@
-package vvvf.modulation;
+package vvvfsimulator.vvvf.modulation;
 public class DeltaSigma{
     private double integrator=0.0;
     private double lastProcessTime=0.0;

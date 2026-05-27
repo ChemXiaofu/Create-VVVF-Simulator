@@ -1,11 +1,11 @@
-package vvvf.modulation;
+package vvvfsimulator.vvvf.modulation;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import vvvf.MyMath;
-import vvvf.model.Struct;
+import vvvfsimulator.vvvf.MyMath;
+import vvvfsimulator.vvvf.model.Struct;
 public class CustomPwm{
     private static final int MAX_PWM_LEVEL=2;
     public byte switchCount=0;

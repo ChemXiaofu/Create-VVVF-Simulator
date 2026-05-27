@@ -1,4 +1,4 @@
-package vvvf;
+package vvvfsimulator.vvvf;
 public final class MyMath{
     public static final double M_2_PI=0.63661977236758134307553505349006;
     public static final double M_1_PI=0.31830988618379067153776752674503;

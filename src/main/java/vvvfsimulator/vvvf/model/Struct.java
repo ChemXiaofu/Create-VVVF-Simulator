@@ -1,4 +1,4 @@
-package vvvf.model;
+package vvvfsimulator.vvvf.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import vvvf.MyMath;
-import vvvf.modulation.Carrier;
-import vvvf.modulation.DeltaSigma;
+import vvvfsimulator.vvvf.MyMath;
+import vvvfsimulator.vvvf.modulation.Carrier;
+import vvvfsimulator.vvvf.modulation.DeltaSigma;
 
 public final class Struct {
     private Struct() {

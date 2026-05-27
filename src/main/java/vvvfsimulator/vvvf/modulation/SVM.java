@@ -1,5 +1,5 @@
-package vvvf.modulation;
-import vvvf.MyMath;
+package vvvfsimulator.vvvf.modulation;
+import vvvfsimulator.vvvf.MyMath;
 public final class SVM{
     public static class FunctionTime{
         public double t0;

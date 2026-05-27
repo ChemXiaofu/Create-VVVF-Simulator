@@ -1,7 +1,7 @@
-package vvvf.modulation;
+package vvvfsimulator.vvvf.modulation;
 import java.util.Random;
-import vvvf.MyMath;
-import vvvf.model.Struct;
+import vvvfsimulator.vvvf.MyMath;
+import vvvfsimulator.vvvf.model.Struct;
 public class Carrier{
     public double angleFrequency=0.0;
     public double time=0.0;

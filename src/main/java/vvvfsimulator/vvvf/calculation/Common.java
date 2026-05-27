@@ -1,16 +1,16 @@
-package vvvf.calculation;
+package vvvfsimulator.vvvf.calculation;
 
 import java.util.Map;
 
-import vvvf.MyMath;
-import vvvf.modulation.SVM;
-import vvvf.model.Config;
-import vvvf.model.Struct;
-import vvvf.model.Struct.PulseControl.Pulse.BaseWaveType;
-import vvvf.model.Struct.PulseControl.Pulse.CarrierWaveConfiguration;
-import vvvf.model.Struct.PulseControl.Pulse.PulseDataKey;
-import vvvf.model.Struct.PulseControl.Pulse.PulseHarmonic;
-import vvvf.model.Struct.PulseControl.Pulse.PulseTypeName;
+import vvvfsimulator.vvvf.MyMath;
+import vvvfsimulator.vvvf.modulation.SVM;
+import vvvfsimulator.vvvf.model.Config;
+import vvvfsimulator.vvvf.model.Struct;
+import vvvfsimulator.vvvf.model.Struct.PulseControl.Pulse.BaseWaveType;
+import vvvfsimulator.vvvf.model.Struct.PulseControl.Pulse.CarrierWaveConfiguration;
+import vvvfsimulator.vvvf.model.Struct.PulseControl.Pulse.PulseDataKey;
+import vvvfsimulator.vvvf.model.Struct.PulseControl.Pulse.PulseHarmonic;
+import vvvfsimulator.vvvf.model.Struct.PulseControl.Pulse.PulseTypeName;
 
 public final class Common {
     private Common() {

@@ -1,15 +1,15 @@
-package vvvf.model;
+package vvvfsimulator.vvvf.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import vvvf.model.Struct.PulseControl.Pulse;
-import vvvf.model.Struct.PulseControl.Pulse.BaseWaveType;
-import vvvf.model.Struct.PulseControl.Pulse.CarrierWaveConfiguration;
-import vvvf.model.Struct.PulseControl.Pulse.PulseAlternative;
-import vvvf.model.Struct.PulseControl.Pulse.PulseDataKey;
-import vvvf.model.Struct.PulseControl.Pulse.PulseTypeName;
+import vvvfsimulator.vvvf.model.Struct.PulseControl.Pulse;
+import vvvfsimulator.vvvf.model.Struct.PulseControl.Pulse.BaseWaveType;
+import vvvfsimulator.vvvf.model.Struct.PulseControl.Pulse.CarrierWaveConfiguration;
+import vvvfsimulator.vvvf.model.Struct.PulseControl.Pulse.PulseAlternative;
+import vvvfsimulator.vvvf.model.Struct.PulseControl.Pulse.PulseDataKey;
+import vvvfsimulator.vvvf.model.Struct.PulseControl.Pulse.PulseTypeName;
 
 public final class Config {
     private Config() {

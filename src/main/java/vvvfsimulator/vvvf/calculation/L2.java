@@ -1,12 +1,12 @@
-package vvvf.calculation;
+package vvvfsimulator.vvvf.calculation;
 
-import vvvf.MyMath;
-import vvvf.modulation.CustomPwm;
-import vvvf.modulation.DeltaSigma;
-import vvvf.model.Struct;
-import vvvf.model.Struct.PulseControl.Pulse.PulseAlternative;
-import vvvf.model.Struct.PulseControl.Pulse.PulseDataKey;
-import vvvf.model.Struct.PulseControl.Pulse.PulseTypeName;
+import vvvfsimulator.vvvf.MyMath;
+import vvvfsimulator.vvvf.modulation.CustomPwm;
+import vvvfsimulator.vvvf.modulation.DeltaSigma;
+import vvvfsimulator.vvvf.model.Struct;
+import vvvfsimulator.vvvf.model.Struct.PulseControl.Pulse.PulseAlternative;
+import vvvfsimulator.vvvf.model.Struct.PulseControl.Pulse.PulseDataKey;
+import vvvfsimulator.vvvf.model.Struct.PulseControl.Pulse.PulseTypeName;
 
 public final class L2 {
     private L2() {

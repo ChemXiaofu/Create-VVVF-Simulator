@@ -6,7 +6,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
-import vvvf.modulation.CustomPwm;
+import vvvfsimulator.vvvf.modulation.CustomPwm;
 @Mod(CreateVVVFSim.mod_id)
 public class CreateVVVFSim{
     public static final String mod_id="create_vvvf_simulator";

@@ -1,6 +1,6 @@
-package vvvf.model;
+package vvvfsimulator.vvvf.model;
 
-import vvvf.MyMath;
+import vvvfsimulator.vvvf.MyMath;
 
 public class Motor {
     public final MotorSpecification specification;
