@@ -14,7 +14,7 @@ public class Struct {
     public List<SoundFilter> filters = new ArrayList<>();
     public boolean useConvolutionFilter = true;
     public int impulseResponseSampleRate = 192000;
-    public float[] impulseResponse = new float[0];
+    public double[] impulseResponse = new double[0];
     public Motor.MotorSpecification motorSpec = new Motor.MotorSpecification();
     public double motorVolumeDb = -2.0;
     public double totalVolumeDb = 0.0;
@@ -79,8 +79,8 @@ public class Struct {
         double rotation = 120.0 / Math.pow(2.0, motorSpec.np) / 60.0;
         double baseRatio = 2.0 * gear1 / (double) gear2;
         double[] harmonics = new double[]{
-                //9.0 * baseRatio * 189.0 / 225.0,
-                //9.0 * baseRatio,
+                9.0 * baseRatio * 189.0 / 225.0,
+                9.0 * baseRatio,
                 9.5,
                 2.0,
                 1.0

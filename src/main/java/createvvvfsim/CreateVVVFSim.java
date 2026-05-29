@@ -6,12 +6,14 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import soundphysics.remastered.SoundPhysicsBridgeManager;
 import vvvfsimulator.vvvf.modulation.CustomPwm;
 @Mod(CreateVVVFSim.mod_id)
 public class CreateVVVFSim{
     public static final String mod_id="create_vvvf_simulator";
     public static final Minecraft mc=Minecraft.getInstance();
     public CreateVVVFSim(){
+        SoundPhysicsBridgeManager.init();
         CustomPwm.CustomPwmPresets.preload();
         VVVFSoundEngine.offPause(mc.options.getSoundSourceVolume(SoundSource.MASTER));
     }

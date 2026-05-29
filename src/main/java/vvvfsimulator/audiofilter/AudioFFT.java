@@ -3,8 +3,8 @@ public final class AudioFFT {
     private int size;
     private int halfSize;
     private int levels;
-    private float[] workRe = new float[0];
-    private float[] workIm = new float[0];
+    private double[] workRe = new double[0];
+    private double[] workIm = new double[0];
     public void init(int size) {
         if (size < 0) {
             throw new IllegalArgumentException("FFT size must be >= 0");
@@ -15,10 +15,10 @@ public final class AudioFFT {
         this.size = size;
         this.halfSize = size / 2;
         this.levels = size == 0 ? 0 : Integer.numberOfTrailingZeros(size);
-        this.workRe = new float[size];
-        this.workIm = new float[size];
+        this.workRe = new double[size];
+        this.workIm = new double[size];
     }
-    public void fft(float[] data, float[] re, float[] im) {
+    public void fft(double[] data, double[] re, double[] im) {
         if (size == 0) {
             return;
         }
@@ -26,14 +26,14 @@ public final class AudioFFT {
             throw new IllegalArgumentException("buffer too small for configured FFT size");
         }
         System.arraycopy(data, 0, workRe, 0, size);
-        java.util.Arrays.fill(workIm, 0f);
+        java.util.Arrays.fill(workIm, 0.0);
         fftComplex(workRe, workIm, false);
         for (int k = 0; k <= halfSize; k++) {
             re[k] = workRe[k];
             im[k] = workIm[k];
         }
     }
-    public void ifft(float[] data, float[] re, float[] im) {
+    public void ifft(double[] data, double[] re, double[] im) {
         if (size == 0) {
             return;
         }
@@ -51,7 +51,7 @@ public final class AudioFFT {
         }
         if (halfSize > 0) {
             workRe[halfSize] = re[halfSize];
-            workIm[halfSize] = 0f;
+            workIm[halfSize] = 0.0;
         }
         fftComplex(workRe, workIm, true);
         for (int n = 0; n < size; n++) {
@@ -61,14 +61,14 @@ public final class AudioFFT {
     public static int ComplexSize(int size) {
         return size / 2 + 1;
     }
-    private void fftComplex(float[] real, float[] imag, boolean inverse) {
+    private void fftComplex(double[] real, double[] imag, boolean inverse) {
         for (int i = 0; i < size; i++) {
             int j = Integer.reverse(i) >>> (32 - levels);
             if (j > i) {
-                float tr = real[i];
+                double tr = real[i];
                 real[i] = real[j];
                 real[j] = tr;
-                float ti = imag[i];
+                double ti = imag[i];
                 imag[i] = imag[j];
                 imag[j] = ti;
             }
@@ -88,10 +88,10 @@ public final class AudioFFT {
                     double uIm = imag[even];
                     double vRe = real[odd] * wRe - imag[odd] * wIm;
                     double vIm = real[odd] * wIm + imag[odd] * wRe;
-                    real[even] = (float) (uRe + vRe);
-                    imag[even] = (float) (uIm + vIm);
-                    real[odd] = (float) (uRe - vRe);
-                    imag[odd] = (float) (uIm - vIm);
+                    real[even] = uRe + vRe;
+                    imag[even] = uIm + vIm;
+                    real[odd] = uRe - vRe;
+                    imag[odd] = uIm - vIm;
                     double nextWRe = wRe * wLenRe - wIm * wLenIm;
                     wIm = wRe * wLenIm + wIm * wLenRe;
                     wRe = nextWRe;
@@ -99,7 +99,7 @@ public final class AudioFFT {
             }
         }
         if (inverse) {
-            float invSize = 1.0f / size;
+            double invSize = 1.0 / size;
             for (int i = 0; i < size; i++) {
                 real[i] *= invSize;
                 imag[i] *= invSize;

@@ -18,26 +18,26 @@ public final class Utilities {
         return next;
     }
 
-    public static void Sum(float[] result, int resultOffset, float[] a, int aOffset, float[] b, int bOffset, int len) {
+    public static void Sum(double[] result, int resultOffset, double[] a, int aOffset, double[] b, int bOffset, int len) {
         for (int i = 0; i < len; i++) {
             result[resultOffset + i] = a[aOffset + i] + b[bOffset + i];
         }
     }
 
-    public static void CopyAndPad(float[] dest, float[] src, int srcOffset, int srcSize) {
+    public static void CopyAndPad(double[] dest, double[] src, int srcOffset, int srcSize) {
         System.arraycopy(src, srcOffset, dest, 0, srcSize);
         if (dest.length > srcSize) {
-            Arrays.fill(dest, srcSize, dest.length, 0f);
+            Arrays.fill(dest, srcSize, dest.length, 0.0);
         }
     }
 
     public static void ComplexMultiplyAccumulate(
-            float[] re,
-            float[] im,
-            float[] reA,
-            float[] imA,
-            float[] reB,
-            float[] imB,
+            double[] re,
+            double[] im,
+            double[] reA,
+            double[] imA,
+            double[] reB,
+            double[] imB,
             int len
     ) {
         for (int i = 0; i < len; i++) {

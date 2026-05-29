@@ -65,8 +65,8 @@ public final class Audio {
         if (trainData.useConvolutionFilter && trainData.impulseResponse != null && trainData.impulseResponse.length > 0) {
             convolutionFilter = new AudioFilter.CppConvolutionFilter(processBlockSize, trainData.impulseResponse);
         }
-        float[] blockInput = new float[processBlockSize];
-        float[] blockOutput = new float[processBlockSize];
+        double[] blockInput = new double[processBlockSize];
+        double[] blockOutput = new double[processBlockSize];
         int blockFill = 0;
 
         double dt = 1.0 / samplingFrequency;
@@ -77,7 +77,7 @@ public final class Audio {
             int samples = 0;
             while (true) {
                 vvvfsimulator.data.vvvf.Analyze.calculate(domain, vvvfData);
-                float sound = (float) calculateTrainSound(domain, trainData);
+                double sound = calculateTrainSound(domain, trainData);
                 blockInput[blockFill++] = sound;
 
                 if (blockFill == processBlockSize) {
