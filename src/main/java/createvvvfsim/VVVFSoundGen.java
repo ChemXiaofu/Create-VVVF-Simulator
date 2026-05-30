@@ -10,11 +10,7 @@ import vvvfsimulator.vvvf.MyMath;
 import vvvfsimulator.vvvf.calculation.Common;
 import vvvfsimulator.vvvf.model.Struct;
 import vvvfsimulator.vvvf.model.Struct.ElectricalParameter.CarrierParameter;
-public class VVVFSoundGen{
-    //sound config
-    private static final int sample_rate=VVVFSoundEngine.sample_rate;
-    private static final int buffer_size=VVVFSoundEngine.buffer_size;
-    private static final double sample_dt=1.0/sample_rate;
+public class VVVFSoundGen extends SoundGen{
     //train config
     private static final CTrains trains_config=AllConfigs.server().trains;
     private static final double max_speed=trains_config.trainTopSpeed.getF();
@@ -28,8 +24,8 @@ public class VVVFSoundGen{
     private final double[] speed_samples=new double[speeds_length];
     private double last_speed=0.0;
 
-    private volatile double target_f=0.0,target_amp=0.0;
-    private double current_f=0.0,current_amp=0.0;
+    private volatile double target_f=0.0;
+    private double current_f=0.0;
 
     private final Struct.PulseControl pulse_control=new Struct.PulseControl();
     private final CarrierParameter.RandomFrequency carrier_random_f=new CarrierParameter.RandomFrequency(0.0,1.0);
@@ -40,17 +36,30 @@ public class VVVFSoundGen{
     private final CppConvolutionFilter conv_filter;
     private final Struct.Domain domain=new Struct.Domain(train_config.motorSpec);
     private final double[] dry_buffer=new double[buffer_size],wet_buffer=new double[buffer_size];
+
+    private static int cnt=0;
     public VVVFSoundGen(){
         int[] ir_sample_rate={-1};
         double[] ir=AudioResourceManager.readResourceAudioFileSample(AudioResourceManager.SAMPLE_IR_PATH,ir_sample_rate);
         train_config.impulseResponseSampleRate=sample_rate;
         train_config.impulseResponse=AudioResourceManager.resampleLinear(ir,ir_sample_rate[0],sample_rate);
-        if(train_config.harmonicSound.isEmpty()) addDefaultMotorHarmonics(train_config);
         train_config.setCalculatedGearHarmonic(19,120);
-        train_config.motorVolumeDb=0;
-        train_config.totalVolumeDb=-2;
+        if(train_config.harmonicSound.isEmpty()) addDefaultMotorHarmonics(train_config);
+        train_config.motorVolumeDb=0.5;
+        train_config.totalVolumeDb=-2.5;
         conv_filter=new CppConvolutionFilter(conv_block_size,train_config.impulseResponse);
         domain.electricalState=elect_state;
+    }
+    public static double customCalcSound(vvvfsimulator.vvvf.model.Struct.Domain control,vvvfsimulator.data.trainaudio.Struct data,double base_f) {
+        double motorPwm = control.motor.parameter.diffTe * Math.pow(10, data.motorVolumeDb);
+        double motor = Audio.calculateHarmonicSounds(control, data.harmonicSound);
+        double gear = Audio.calculateHarmonicSounds(control, data.gearSound);
+        cnt++;
+        if(cnt==100000){
+            cnt=0;
+            System.out.printf("pwm: %8f,  motor: %10f,  gear: %10f,  base_f: %10f\n",motorPwm,motor,gear,base_f);
+        }
+        return (motorPwm + motor + gear) * Math.pow(10, data.totalVolumeDb);
     }
     private static void addDefaultMotorHarmonics(vvvfsimulator.data.trainaudio.Struct config){
         double[] harmonics={1.0,2.0,9.5};
@@ -81,9 +90,7 @@ public class VVVFSoundGen{
         last_speed+=delta;
         target_f=Math.clamp(last_speed/max_speed,0.0,1.0)*max_base_f;
     }
-    public void updateAmp(double distance_amp){
-        target_amp=distance_amp;
-    }
+    @Override
     public void mixTo(double[] mix_buffer){
         double f_step=(target_f-current_f)/buffer_size;
         double amp_step=(target_amp-current_amp)/buffer_size;
@@ -182,7 +189,7 @@ public class VVVFSoundGen{
             domain.getCarrierInstance().time+=sample_dt;
             Struct.PhaseState state=Common.getCalculator(2,pulse_type).calculate(domain,0.0);
             domain.motor.process(domain.getDeltaTime(),MyMath.M_2PI*base_f,state);
-            double train_sound=Audio.calculateTrainSoundFromCurrentState(domain,train_config);
+            double train_sound=customCalcSound(domain,train_config,base_f);
             dry_buffer[i]=train_sound*current_amp;
         }
         conv_filter.process(dry_buffer,0,wet_buffer,0,buffer_size);

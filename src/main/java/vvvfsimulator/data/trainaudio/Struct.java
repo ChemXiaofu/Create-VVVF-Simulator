@@ -79,18 +79,17 @@ public class Struct {
         double rotation = 120.0 / Math.pow(2.0, motorSpec.np) / 60.0;
         double baseRatio = 2.0 * gear1 / (double) gear2;
         double[] harmonics = new double[]{
-                9.0 * baseRatio * 189.0 / 225.0,
+                9.0 * baseRatio * 189.0 / 225,
                 9.0 * baseRatio,
-                9.5,
-                2.0,
-                1.0
+                9.0,
+                1.0,
+                9.5
         };
 
         for (int i = 0; i < harmonics.length; i++) {
             HarmonicData data = new HarmonicData();
             data.harmonic = rotation * gear1 * harmonics[i];
             data.disappear = -1.0;
-
             data.amplitude.start = 0.0;
             data.amplitude.startValue = 0.0;
             data.amplitude.end = 40.0;

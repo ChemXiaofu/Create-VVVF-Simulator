@@ -19,13 +19,17 @@ public class CreateVVVFSim{
     }
     @EventBusSubscriber(modid=mod_id,value=Dist.CLIENT)
     public static class ClientEvents{
+        private static boolean is_inworld=false,is_last_inworld=false;
         private static boolean is_paused=false,is_last_paused=false;
         @SubscribeEvent
         public static void onClientTick(ClientTickEvent.Post event){
+            is_inworld=mc.level!=null && mc.player!=null;
             is_paused=mc.isPaused();
-            if(is_paused && !is_last_paused) VVVFSoundEngine.onPause();
-            if(!is_paused && is_last_paused)
+            if(!is_inworld && is_last_inworld) VVVFSoundEngine.onQuit();
+            else if(is_paused && !is_last_paused) VVVFSoundEngine.onPause();
+            else if(!is_paused && is_last_paused)
                 VVVFSoundEngine.offPause(mc.options.getSoundSourceVolume(SoundSource.MASTER));
+            is_last_inworld=is_inworld;
             is_last_paused=is_paused;
         }
     }
