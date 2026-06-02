@@ -5,7 +5,6 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 public class SoundEngine{
-    private static final int sample_rate=Configs.sample_rate;
     private static final int buffer_size=Configs.buffer_size;
     private static final AudioFormat format=Configs.format;
     private static final double[] mix_buffer=new double[buffer_size];

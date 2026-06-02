@@ -41,7 +41,7 @@ public class VVVFSoundGen extends SoundGen{
     private static void addDefaultMotorHarmonics(vvvfsimulator.data.trainaudio.Struct config){
         double[] harmonics={1.0,2.0,9.5};
         for(int i=0;i<harmonics.length;i++){
-            var h=new vvvfsimulator.data.trainaudio.Struct.HarmonicData();
+            vvvfsimulator.data.trainaudio.Struct.HarmonicData h=new vvvfsimulator.data.trainaudio.Struct.HarmonicData();
             h.harmonic=harmonics[i];
             h.disappear=-1.0;
             h.range.start=0.0;

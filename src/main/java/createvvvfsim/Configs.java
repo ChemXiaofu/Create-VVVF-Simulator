@@ -1,7 +1,6 @@
 package createvvvfsim;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 import com.simibubi.create.infrastructure.config.CTrains;
-import net.minecraft.client.Minecraft;
 import javax.sound.sampled.AudioFormat;
 public class Configs{
     //basic
