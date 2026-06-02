@@ -6,9 +6,9 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
-@EventBusSubscriber(modid=CreateVVVFSim.mod_id)
+@EventBusSubscriber(modid=Configs.mod_id)
 public class ServerEvents{
-    private static final int tick_period=3;
+    private static final int tick_period=Configs.tick_period;
     @SubscribeEvent
     public static void tick(ServerTickEvent.Post event){
         MinecraftServer server=event.getServer();

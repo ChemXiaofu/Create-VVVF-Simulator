@@ -10,17 +10,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 public class TrainStatus{
     private static final double max_distance=Configs.max_distance;
+    private static final Map<CarriageContraptionEntity,Integer> ticks=new HashMap<>();
     public static final Map<UUID,Double> cached_speeds=new HashMap<>();
     public static final List<TrainData> all_trains=new ArrayList<>();
     public static final Object speed_lock=new Object(),train_lock=new Object();
-
-    private static final Logger LOGGER=LoggerFactory.getLogger("createvvvfsim");
-    private static int cnt=0;
-
     public static void addTrain(Train train){
         synchronized(train_lock){
             all_trains.add(new TrainData(train));
@@ -64,10 +59,10 @@ public class TrainStatus{
                 for(Carriage carriage:train_data.train.carriages){
                     DimensionalCarriageEntity dce=carriage.getDimensionalIfPresent(level.dimension());
                     if(dce==null) continue;
-                    Vec3 leading_anchor=dce.leadingAnchor(),trailing_anchor=dce.trailingAnchor();
-                    if(leading_anchor==null || trailing_anchor==null) continue;
                     CarriageContraptionEntity entity=dce.entity.get();
                     if(entity==null) continue;
+                    Integer entity_tick=entity.tickCount;
+                    if(entity_tick.equals(ticks.put(entity,entity_tick))) continue;
                     Vec3 train_pos=entity.position();
                     double distance=train_pos.distanceTo(player_pos);
                     total_factor+=Math.max(0.0,1.0-distance/max_distance);
@@ -88,12 +83,6 @@ public class TrainStatus{
                             SoundSource.NEUTRAL,0.75f*(float)total_factor,1f);
                     level.playLocalSound(player,SoundEvents.WOODEN_TRAPDOOR_CLOSE,
                             SoundSource.NEUTRAL,0.6f*(float)total_factor,1.5f);
-                }
-                cnt++;
-                double factor=total_factor;
-                if(cnt==3){
-                    cnt=0;
-                    LOGGER.info("factor:{}",String.format("%4.2f",factor));
                 }
                 train_data.gen.setAmp(total_factor);
                 train_data.vvvf_gen.setAmp(total_factor);

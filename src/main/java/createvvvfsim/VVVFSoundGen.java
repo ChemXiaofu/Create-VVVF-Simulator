@@ -161,6 +161,6 @@ public class VVVFSoundGen extends SoundGen{
             dry_buffer[i]=train_sound*current_amp;
         }
         conv_filter.process(dry_buffer,0,wet_buffer,0,buffer_size);
-        for(int i=0;i<buffer_size;i++) mix_buffer[i]+=wet_buffer[i];
+        for(int i=0;i<buffer_size;i++) mix_buffer[i]+=wet_buffer[i]*0.5;
     }
 }

@@ -1,23 +1,28 @@
 package createvvvfsim;
-import com.simibubi.create.infrastructure.config.AllConfigs;
-import com.simibubi.create.infrastructure.config.CTrains;
 import javax.sound.sampled.AudioFormat;
+import net.minecraft.client.Minecraft;
 public class Configs{
-    //basic
+    //register
+    public static final String mod_id="create_vvvf_simulator";
+    public static final String version="1.0.0";
+    public static final String sync_model_name="train_sync";
     public static final int mixin_priority=1027;
+    public static final int tick_period=3;
+    public static final Minecraft mc=Minecraft.getInstance();
+    //command
+    public static final String command_vvvf="vvvf";
+    public static final String command_reload="reload";
+    public static final String command_return="§a[Create: VVVF-Simulator] Reloaded!§r";
     //audio
     public static final int sample_rate=44100;
     public static final int buffer_size=1<<12;
     public static final AudioFormat format=new AudioFormat(sample_rate,16,1,true,false);
-    public static final double sample_dt=1.0/sample_rate;
-    public static final double base_max_amp=0.05;
+    public static final double base_max_amp=0.02;
     public static final double base_current_f=120.0;
-    public static final double max_distance=32;
+    public static final double max_distance=96;
     //speed
-    public static final CTrains train_config=AllConfigs.server().trains;
-    public static final double max_speed=train_config.trainTopSpeed.getF();
-    public static final double max_acc=train_config.trainAcceleration.getF()*1.01/20.0;
-    public static final int speeds_length=7;
+    public static final double max_acc_ratio=1.05;
+    public static final int speeds_length=5;
     //vvvf
     public static final double max_base_f=115.0;
     public static final int conv_block_size=512;
