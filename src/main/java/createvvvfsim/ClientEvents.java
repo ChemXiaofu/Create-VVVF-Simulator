@@ -17,7 +17,7 @@ public class ClientEvents{
     private static final Minecraft mc=Configs.mc;
     @SubscribeEvent
     public static void onJoin(ClientPlayerNetworkEvent.LoggingIn event){
-        SoundEngine.setMainAmp(mc.options.getSoundSourceVolume(SoundSource.MASTER));
+        SoundEngine.setAmp(mc.options.getSoundSourceVolume(SoundSource.MASTER));
     }
     @SubscribeEvent
     public static void onExit(ClientPlayerNetworkEvent.LoggingOut event){
@@ -25,7 +25,7 @@ public class ClientEvents{
     }
     @SubscribeEvent
     public static void onPauseChange(ClientPauseChangeEvent.Post event){
-        SoundEngine.setMainAmp(event.isPaused()?0.0:mc.options.getSoundSourceVolume(SoundSource.MASTER));
+        SoundEngine.setAmp(event.isPaused()?0.0:mc.options.getSoundSourceVolume(SoundSource.MASTER));
     }
     @SubscribeEvent
     public static void registerCommands(RegisterClientCommandsEvent event){

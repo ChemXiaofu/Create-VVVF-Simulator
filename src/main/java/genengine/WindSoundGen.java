@@ -11,13 +11,13 @@ public class WindSoundGen extends SoundGen{
     private static final double bg_shear_range=Configs.bg_shear_range;
     private static final double bg_shear_rate=Configs.bg_shear_rate;
     private static final double hp_cutoff=Configs.hp_cutoff;
-    private static final double bg_amp=Configs.bg_amp;
-    private static final double main_wind_amp=Configs.main_wind_amp;
+    private static final double bg_wind_amp=Configs.bg_wind_amp;
+    private static final double main_cauchy_amp=Configs.main_cauchy_amp;
     private static final double main_center_f=Configs.main_center_f;
     private static final double main_cauchy_gamma=Configs.main_cauchy_gamma;
     private static final double main_mod_f=Configs.main_mod_f;
     private static final double main_mod_depth=Configs.main_mod_depth;
-    private static final double main_amp=Configs.main_amp;
+    private static final double main_wind_amp=Configs.main_wind_amp;
     private static final int table_size=Configs.buffer_size*Configs.table_ratio;
     private static final double[] main_wind=new double[table_size];
     private final PinkNoiseFilter pink_bg=new PinkNoiseFilter();
@@ -54,7 +54,7 @@ public class WindSoundGen extends SoundGen{
             double abs_val=Math.abs(main_wind[i]);
             if(peak<abs_val) peak=abs_val;
         }
-        double norm_factor=main_wind_amp/peak;
+        double norm_factor=main_cauchy_amp/peak;
         for(int i=0;i<table_size;i++) main_wind[i]*=norm_factor;
     }
     private class PinkNoiseFilter{
@@ -107,10 +107,10 @@ public class WindSoundGen extends SoundGen{
         target_f=speed;
     }
     private double bgFactor(){
-        return bg_amp*current_f*current_f*current_amp;
+        return bg_wind_amp*current_f*current_f;
     }
     private double mainFactor(){
-        return main_amp*Math.sqrt(Math.max(0.0,current_f));
+        return main_wind_amp*Math.pow(Math.abs(current_f),2.5);
     }
     @Override
     public void mixTo(double[] mix_buffer){
@@ -120,7 +120,7 @@ public class WindSoundGen extends SoundGen{
         for(int i=0;i<buffer_size;i++){
             current_f+=f_step;
             current_amp+=amp_step;
-            if(current_amp<1e-2) continue;
+            if(current_amp<1e-2 || current_f<1e-2) continue;
             bg_lpf.setCutoff(Math.clamp(bg_shear_base+bg_shear.step(),400.0,1200.0));
             double bg_lfo=0.5+0.5*Math.sin(2.0*Math.PI*wind_mod_f*total_t);
             double current_pink_bg=pink_bg.process(tlr.nextGaussian()*0.5);
@@ -129,7 +129,7 @@ public class WindSoundGen extends SoundGen{
             double main_lfo=0.5+0.5*Math.sin(2.0*Math.PI*main_mod_f*total_t);
             if(table_index==table_size) table_index=0;
             double current_main_wind=main_wind[table_index]*(1.0+main_mod_depth*main_lfo);
-            mix_buffer[i]+=(bg_wind+current_main_wind*mainFactor())*bgFactor();
+            mix_buffer[i]+=(bg_wind*bgFactor()+current_main_wind*mainFactor())*current_amp;
             total_t+=sample_dt;
             table_index++;
         }

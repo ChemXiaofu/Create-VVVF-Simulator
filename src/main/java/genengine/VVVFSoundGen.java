@@ -28,29 +28,26 @@ public class VVVFSoundGen extends SoundGen{
         train_config.impulseResponseSampleRate=sample_rate;
         train_config.impulseResponse=AudioResourceManager.resampleLinear(ir,ir_sample_rate[0],sample_rate);
         train_config.setCalculatedGearHarmonic(19,120);
-        if(train_config.harmonicSound.isEmpty()) addDefaultMotorHarmonics(train_config);
+        addDefaultMotorHarmonics(train_config);
         train_config.motorVolumeDb=0;
         train_config.totalVolumeDb=-2;
         conv_filter=new CppConvolutionFilter(conv_block_size,train_config.impulseResponse);
         domain.electricalState=elect_state;
+        pulse_control.pulseMode.carrierWave.type=Struct.PulseControl.Pulse.CarrierWaveConfiguration.CarrierWaveType.Sine;
     }
     private static void addDefaultMotorHarmonics(vvvfsimulator.data.trainaudio.Struct config){
-        double[] harmonics={1.0,2.0,9.5},amps={0.3,0.3,1.2};
-        for(int i=0;i<harmonics.length;i++){
-            vvvfsimulator.data.trainaudio.Struct.HarmonicData h=new vvvfsimulator.data.trainaudio.Struct.HarmonicData();
-            h.harmonic=harmonics[i];
-            h.disappear=-1.0;
-            h.range.start=0.0;
-            h.range.end=-1.0;
-            h.amplitude.start=0.0;
-            h.amplitude.startValue=0.0;
-            h.amplitude.end=40.0;
-            //h.amplitude.endValue=0.16*Math.pow(0.62,i);
-            h.amplitude.endValue=0.1*Math.pow(0.8,amps[i]);
-            h.amplitude.minimumValue=0.0;
-            h.amplitude.maximumValue=0.16;
-            config.harmonicSound.add(h);
-        }
+        vvvfsimulator.data.trainaudio.Struct.HarmonicData h=new vvvfsimulator.data.trainaudio.Struct.HarmonicData();
+        h.harmonic=3.0;
+        h.disappear=-1.0;
+        h.range.start=0.0;
+        h.range.end=44.0;
+        h.amplitude.start=0.0;
+        h.amplitude.startValue=0.0;
+        h.amplitude.end=44.0;
+        h.amplitude.endValue=0.2;
+        h.amplitude.minimumValue=0.0;
+        h.amplitude.maximumValue=0.2;
+        config.harmonicSound.add(h);
     }
     public void setF(double speed){
         target_f=speed*max_base_f;
@@ -108,7 +105,7 @@ public class VVVFSoundGen extends SoundGen{
                 pulse_alt=Struct.PulseControl.Pulse.PulseAlternative.Default;
             }//Square
             elect_state.baseWaveFrequency=base_f;
-            if(base_f<44.0) elect_state.baseWaveAmplitude=0.01626*base_f;
+            if(base_f<44.0) elect_state.baseWaveAmplitude=0.0211*base_f;
             else elect_state.baseWaveAmplitude=Math.min(0.0211*base_f-0.1657,1.245);
             domain.setBaseWaveAngleFrequency(MyMath.M_2PI*base_f);
             pulse_control.pulseMode.alternative=pulse_alt;
@@ -153,10 +150,9 @@ public class VVVFSoundGen extends SoundGen{
             domain.getCarrierInstance().time+=sample_dt;
             Struct.PhaseState state=Common.getCalculator(2,pulse_type).calculate(domain,0.0);
             domain.motor.process(domain.getDeltaTime(),MyMath.M_2PI*base_f,state);
-            double train_sound=Audio.calculateTrainSoundFromCurrentState(domain,train_config);
-            dry_buffer[i]=train_sound*current_amp;
+            dry_buffer[i]=Audio.calculateTrainSoundFromCurrentState(domain,train_config);
         }
         conv_filter.process(dry_buffer,0,wet_buffer,0,buffer_size);
-        for(int i=0;i<buffer_size;i++) mix_buffer[i]+=wet_buffer[i]*vvvf_amp;
+        for(int i=0;i<buffer_size;i++) mix_buffer[i]+=wet_buffer[i]*vvvf_amp*current_amp;
     }
 }

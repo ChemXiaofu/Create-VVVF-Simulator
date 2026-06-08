@@ -16,8 +16,9 @@ public class SoundEngine{
     private static final byte[] out_buffer=new byte[buffer_size*2];
     private static final Thread thread=new Thread(SoundEngine::mixLoop);
     private static final Handler sound_handler=Configs.sound_handler;
-    private static volatile double target_main_amp=0.0;
-    private static double current_main_amp=0.0;
+    private static final double main_amp=Configs.main_amp;
+    private static volatile double settings_amp=0.0;
+    private static double current_amp=0.0;
     private static SourceDataLine dataline;
     static{
         try{
@@ -29,8 +30,8 @@ public class SoundEngine{
         thread.setDaemon(true);
         thread.start();
     }
-    public static void setMainAmp(double volume){
-        target_main_amp=volume;
+    public static void setAmp(double volume){
+        settings_amp=volume;
     }
     private static void mixLoop(){
         while(true){
@@ -42,10 +43,10 @@ public class SoundEngine{
                 train_data.wind_gen.mixTo(mix_buffer);
             }
             sound_handler.handle(mix_buffer);
-            double amp_step=(target_main_amp-current_main_amp)/buffer_size;
+            double amp_step=(settings_amp*main_amp-current_amp)/buffer_size;
             for(int i=0;i<buffer_size;i++){
-                current_main_amp+=amp_step;
-                double clipped=Math.clamp(mix_buffer[i],-1.0,1.0)*current_main_amp;
+                current_amp+=amp_step;
+                double clipped=Math.clamp(mix_buffer[i],-1.0,1.0)*current_amp;
                 short sample=(short)(clipped*Short.MAX_VALUE);
                 out_buffer[i*2]=(byte)(sample&0xFF);
                 out_buffer[i*2+1]=(byte)((sample>>8)&0xFF);

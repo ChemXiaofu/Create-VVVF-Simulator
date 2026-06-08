@@ -4,7 +4,7 @@
   "package":"mixin",
   "compatibilityLevel":"JAVA_21",
   "client":[
-    "NoCarriageSounds",
+    "NoCarriageEffects",
     "AddTrain",
     "RemoveTrain"
   ],

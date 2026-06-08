@@ -3,7 +3,7 @@ import createvvvfsim.Configs;
 import java.util.concurrent.ThreadLocalRandom;
 public class BaseSoundGen extends SoundGen{
     private static final double current_f=Configs.base_current_f;
-    private static final double base_max_amp=Configs.base_max_amp;
+    private static final double base_amp=Configs.base_amp;
     private static final double brown_amp=Configs.brown_amp;
     private static final double brown_sigma=Configs.brown_sigma;
     private static final double brown_range=Configs.brown_range;
@@ -24,7 +24,7 @@ public class BaseSoundGen extends SoundGen{
             current_amp+=amp_step;
             if(current_amp<1e-2) continue;
             double base=2*Math.abs(phase-1.0)-1.0;
-            mix_buffer[i]+=(base+brown_amp*step())*current_amp*base_max_amp;
+            mix_buffer[i]+=(base*base_amp+step()*brown_amp)*current_amp;
             phase+=2.0*current_f*sample_dt;
             if(phase>=2.0) phase-=2.0;
         }
