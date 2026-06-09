@@ -1,5 +1,5 @@
 # Create: VVVF-Simulator
-![license](https://img.shields.io/badge/license-MIT-brightgreen?style=for-the-badge)
+![license](https://img.shields.io/badge/license-GPLv3-brightgreen?style=for-the-badge)
 
 机械动力：VVVF模拟器
 
@@ -21,7 +21,10 @@ git clone https://github.com/Deiloproxide/Create-VVVF-Simulator.git
 ## 贡献
 我们欢迎您对我们项目的贡献，请随时评价项目或提交代码
 ## 鸣谢
-本项目部分代码移植自 [VVVF-Simulator](https://github.com/VvvfGeeks/VVVF-Simulator) ，在此对创作者表示感谢
+本项目部分代码移植适配自:<br>
+[VVVF-Simulator](https://github.com/VvvfGeeks/VVVF-Simulator)<br>
+[sound-physics-remastered](https://github.com/henkelmax/sound-physics-remastered)<br>
+在此对创作者表示感谢
 ## 联系我们
 Deiloproxide - [@Deiloproxide](https://github.com/Deiloproxide)
 

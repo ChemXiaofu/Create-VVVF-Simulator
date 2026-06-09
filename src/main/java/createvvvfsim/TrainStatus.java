@@ -10,12 +10,19 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+import soundphysics.Handler;
 public class TrainStatus{
     private static final double near_distance=Configs.near_distance;
     private static final double far_distance=Configs.far_distance;
-    private static final List<TrainData> all_trains=new ArrayList<>();
-    public static final Map<UUID,Double> cached_speeds=new HashMap<>();
+    private static final double main_amp=Configs.main_amp;
+    private static final double gas_amp=Configs.gas_amp;
+    private static final double switch_amp=Configs.switch_amp;
+    private static final int eval_period=Configs.eval_period;
+    private static final Handler handler=Configs.handler;
     public static final Object speed_lock=new Object(),train_lock=new Object();
+    public static final Map<UUID,Double> cached_speeds=new HashMap<>();
+    private static final List<TrainData> all_trains=new ArrayList<>();
+    private static List<TrainData> eval_trains=new ArrayList<>();
     public static void addTrain(Train train){
         synchronized(train_lock){
             all_trains.add(new TrainData(train));
@@ -63,7 +70,7 @@ public class TrainStatus{
         }
     }
     public static void tick(Level level,Player player){
-        if(player==null) return;
+        if(level==null) return;
         Vec3 player_pos=player.position();
         synchronized(train_lock){
             all_trains.removeIf(data->data.train.invalid);
@@ -99,18 +106,35 @@ public class TrainStatus{
             }
             train_data.is_move=speed>1e-2;
             if(train_data.is_move && !train_data.is_last_move && near_factor>1e-2){
-                level.playLocalSound(player,SoundEvents.LAVA_EXTINGUISH,
-                        SoundSource.NEUTRAL,0.75f*(float)near_factor,4f);
-                level.playLocalSound(player,SoundEvents.WOODEN_TRAPDOOR_CLOSE,
-                        SoundSource.NEUTRAL,0.6f*(float)near_factor,2f);
+                level.playLocalSound(player,SoundEvents.LAVA_EXTINGUISH,SoundSource.NEUTRAL,
+                        (float)(main_amp*gas_amp*near_factor),2f);
+                level.playLocalSound(player,SoundEvents.WOODEN_TRAPDOOR_CLOSE,SoundSource.NEUTRAL,
+                        (float)(main_amp*switch_amp*near_factor),2f);
             }
-            double smoothed=train_data.f_smoother.smoothF(speed);
-            train_data.base_gen.setAmp(near_factor);
-            train_data.vvvf_gen.setAmp(near_factor);
-            train_data.wind_gen.setAmp(far_factor);
-            train_data.vvvf_gen.setF(smoothed);
-            train_data.wind_gen.setF(smoothed);
+            train_data.set(speed,near_factor,far_factor);
             train_data.is_last_move=train_data.is_move;
+        }
+    }
+    public static void evalTrains(Level level,Player player,int period_state){
+        if(level==null) return;
+        if(period_state==0) eval_trains=getTrainDatas();
+        for(int i=period_state;i<eval_trains.size();i+=eval_period){
+            TrainData train_data=eval_trains.get(i);
+            List<Carriage> carriages=train_data.train.carriages;
+            Vec3 total=Vec3.ZERO;
+            int valid_cnt=0;
+            for(Carriage carriage:carriages){
+                DimensionalCarriageEntity dce=carriage.getDimensionalIfPresent(level.dimension());
+                if(dce==null) continue;
+                CarriageContraptionEntity entity=dce.entity.get();
+                if(entity==null) continue;
+                if(entity.isRemoved()) continue;
+                total=total.add(entity.position());
+                valid_cnt++;
+            }
+            if(valid_cnt==0) continue;
+            Vec3 avg=total.scale(1.0/valid_cnt);
+            train_data.env_data=handler.getEnv(avg,player.position(),level);
         }
     }
 }

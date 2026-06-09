@@ -15,7 +15,7 @@ public class SoundEngine{
     private static final double[] mix_buffer=new double[buffer_size];
     private static final byte[] out_buffer=new byte[buffer_size*2];
     private static final Thread thread=new Thread(SoundEngine::mixLoop);
-    private static final Handler sound_handler=Configs.sound_handler;
+    private static final Handler handler=Configs.handler;
     private static final double main_amp=Configs.main_amp;
     private static volatile double settings_amp=0.0;
     private static double current_amp=0.0;
@@ -37,12 +37,7 @@ public class SoundEngine{
         while(true){
             Arrays.fill(mix_buffer,0.0);
             List<TrainData> train_datas=TrainStatus.getTrainDatas();
-            for(TrainData train_data:train_datas){
-                train_data.base_gen.mixTo(mix_buffer);
-                train_data.vvvf_gen.mixTo(mix_buffer);
-                train_data.wind_gen.mixTo(mix_buffer);
-            }
-            sound_handler.handle(mix_buffer);
+            handler.handle(mix_buffer,train_datas);
             double amp_step=(settings_amp*main_amp-current_amp)/buffer_size;
             for(int i=0;i<buffer_size;i++){
                 current_amp+=amp_step;

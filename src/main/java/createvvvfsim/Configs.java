@@ -9,13 +9,12 @@ public class Configs{
     public static final String version="1.0.0";
     public static final String sync_model_name="train_sync";
     public static final Minecraft mc=Minecraft.getInstance();
-    public static final Handler sound_handler;
     public static final int mixin_priority=1027;
-    public static final int tick_period=3;
-    static{
-        if(HandlerPhysics.register()) sound_handler=new HandlerPhysics();
-        else sound_handler=new Handler();
-    }
+    public static final int sync_period=3;
+    public static final int eval_period=5;
+    //physics handler
+    public static final boolean physics_available=HandlerPhysics.register();
+    public static final Handler handler=physics_available?new HandlerPhysics():new Handler();
     //command
     public static final String command_vvvf="vvvf";
     public static final String command_reload="reload";
@@ -26,6 +25,9 @@ public class Configs{
     public static final AudioFormat format=new AudioFormat(sample_rate,16,1,true,false);
     //main amp
     public static final double main_amp=1.5;
+    //train start
+    public static final double gas_amp=0.6;
+    public static final double switch_amp=0.4;
     //base
     public static final double base_current_f=120.0;
     public static final double brown_sigma=0.05;

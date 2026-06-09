@@ -15,6 +15,8 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 @EventBusSubscriber(modid=Configs.mod_id,value=Dist.CLIENT)
 public class ClientEvents{
     private static final Minecraft mc=Configs.mc;
+    private static final int eval_period=Configs.eval_period;
+    private static int eval_current=eval_period;
     @SubscribeEvent
     public static void onJoin(ClientPlayerNetworkEvent.LoggingIn event){
         SoundEngine.setAmp(mc.options.getSoundSourceVolume(SoundSource.MASTER));
@@ -36,5 +38,8 @@ public class ClientEvents{
     @SubscribeEvent
     public static void tick(ClientTickEvent.Post event){
         TrainStatus.tick(mc.level,mc.player);
+        if(eval_current==eval_period) eval_current=0;
+        TrainStatus.evalTrains(mc.level,mc.player,eval_current);
+        eval_current++;
     }
 }

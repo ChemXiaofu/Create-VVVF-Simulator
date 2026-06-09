@@ -121,7 +121,7 @@ public class WindSoundGen extends SoundGen{
             current_f+=f_step;
             current_amp+=amp_step;
             if(current_amp<1e-2 || current_f<1e-2) continue;
-            bg_lpf.setCutoff(Math.clamp(bg_shear_base+bg_shear.step(),400.0,1200.0));
+            bg_lpf.setCutoff(bg_shear_base+bg_shear.step());
             double bg_lfo=0.5+0.5*Math.sin(2.0*Math.PI*wind_mod_f*total_t);
             double current_pink_bg=pink_bg.process(tlr.nextGaussian()*0.5);
             double bg_amp=Math.min(0.5,wind_base_amp*(1.0+wind_mod_depth*bg_lfo));

@@ -6,7 +6,8 @@
   "client":[
     "NoCarriageEffects",
     "AddTrain",
-    "RemoveTrain"
+    "RemoveTrain",
+    "SPRAccessor"
   ],
   "injectors":{
     "defaultRequire":1
