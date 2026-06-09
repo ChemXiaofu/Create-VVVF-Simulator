@@ -7,7 +7,7 @@
     "NoCarriageEffects",
     "AddTrain",
     "RemoveTrain",
-    "SPRAccessor"
+    "ISPRAccessor"
   ],
   "injectors":{
     "defaultRequire":1
