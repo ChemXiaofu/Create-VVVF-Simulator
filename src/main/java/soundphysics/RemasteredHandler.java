@@ -1,4 +1,4 @@
-package soundphysics.remastered;
+package soundphysics;
 import createvvvfsim.Configs;
 import createvvvfsim.EnvData;
 import createvvvfsim.TrainData;
@@ -17,8 +17,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.ModList;
-import soundphysics.Handler;
-public class HandlerRemastered extends Handler{
+public class RemasteredHandler extends Handler{
     private static final int buffer_size=Configs.buffer_size;
     private static final double far_distance=Configs.far_distance;
     private static final float angle=(float)(Math.PI*(Math.sqrt(5f)+1f));
@@ -59,16 +58,16 @@ public class HandlerRemastered extends Handler{
     public EnvData getEnv(Vec3 train_pos,Vec3 player_pos,Level level){
         EnvData env_data=new EnvData();
         double distance=train_pos.distanceTo(player_pos);
-        if(distance>Constants.max_process_distance) return env_data;
+        if(distance>RemasteredConst.max_process_distance) return env_data;
         try{
             double occlusion=ISPRAccessor.calculateOcclusion(train_pos,player_pos,SoundSource.NEUTRAL,sound_id);
             Object audio_direction=constructor.newInstance(occlusion,sound_id);
             Vec3 airspace=ISPRAccessor.getSharedAirspace(train_pos,player_pos);
-            float[] reflect_ratio=new float[Constants.ray_bounces];
+            float[] reflect_ratio=new float[RemasteredConst.ray_bounces];
             if(airspace!=null) invoke(add_direct,audio_direction,airspace);
             float[] send_gains=new float[4],send_cutoffs=new float[4];
-            for(int i=0;i<Constants.ray_count;i++){
-                float latitude=(float)Math.asin(2f*i/Constants.ray_count-1f),longitude=angle*i;
+            for(int i=0;i<RemasteredConst.ray_count;i++){
+                float latitude=(float)Math.asin(2f*i/RemasteredConst.ray_count-1f),longitude=angle*i;
                 Vec3 ray_dir=new Vec3(Math.cos(latitude)*Math.cos(longitude),
                         Math.cos(latitude)*Math.sin(longitude),Math.sin(latitude));
                 Vec3 ray_end=train_pos.add(ray_dir.scale(far_distance));
@@ -83,7 +82,7 @@ public class HandlerRemastered extends Handler{
                 Vec3 first_shared_airspace=ISPRAccessor.getSharedAirspace(ray_hit,player_pos);
                 if(first_shared_airspace!=null)
                     invoke(add_shared,audio_direction,first_shared_airspace,total_ray_distance);
-                for(int j=0;j<Constants.ray_bounces;j++){
+                for(int j=0;j<RemasteredConst.ray_bounces;j++){
                     Vec3 new_ray_dir=ISPRAccessor.reflect(last_ray_dir,last_hit_normal);
                     Vec3 new_ray_start=last_hit_pos;
                     Vec3 new_ray_end=new_ray_start.add(new_ray_dir.scale(far_distance));
@@ -106,25 +105,25 @@ public class HandlerRemastered extends Handler{
                         if(shared_airspace!=null)
                             invoke(add_shared,audio_direction,shared_airspace,total_ray_distance);
                     }
-                    if(total_ray_distance>Constants.decrease_distance){
+                    if(total_ray_distance>RemasteredConst.decrease_distance){
                         float reflection_delay=(float)Math.max(total_ray_distance,0f)*0.12f*block_reflectivity;
                         for(int k=0;k<4;k++){
                             float value=k==3?reflection_delay-2f:1f-Math.abs(reflection_delay-k);
                             float cross=Math.clamp(value,0f,1f),amp=k==0?6.4f:12.8f;
-                            send_gains[k]+=cross*energy*amp*Constants.d_rays;
+                            send_gains[k]+=cross*energy*amp*RemasteredConst.d_rays;
                         }
                     }
                     if(new_ray_hit.getType()==HitResult.Type.MISS) break;
                 }
             }
-            for(int i=0;i<Constants.ray_bounces;i++) reflect_ratio[i]/=Constants.ray_count;
-            float shared_space=(Integer)invoke(get_shared,audio_direction)*64f*Constants.d_rays;
-            float avg_space=0f,direct_cutoff=(float)Math.exp(-occlusion*Constants.block_absorption*3f);
-            float send_gain_mul=1f-Math.min((float)(distance/(far_distance*Constants.reverb_distance)),1f);
+            for(int i=0;i<RemasteredConst.ray_bounces;i++) reflect_ratio[i]/=RemasteredConst.ray_count;
+            float shared_space=(Integer)invoke(get_shared,audio_direction)*64f*RemasteredConst.d_rays;
+            float avg_space=0f,direct_cutoff=(float)Math.exp(-occlusion*RemasteredConst.block_absorption*3f);
+            float send_gain_mul=1f-Math.min((float)(distance/(far_distance*RemasteredConst.reverb_distance)),1f);
             float[] factor={20f,15f,10f,10f},gain_fac={
-                    1f,Constants.ray_bounces>1?reflect_ratio[1]:1f,
-                    Constants.ray_bounces>2?(float)Math.pow(reflect_ratio[2],3.0):1f,
-                    Constants.ray_bounces>3?(float)Math.pow(reflect_ratio[3],4.0):1f};
+                    1f,RemasteredConst.ray_bounces>1?reflect_ratio[1]:1f,
+                    RemasteredConst.ray_bounces>2?(float)Math.pow(reflect_ratio[2],3.0):1f,
+                    RemasteredConst.ray_bounces>3?(float)Math.pow(reflect_ratio[3],4.0):1f};
             for(int i=0;i<4;i++){
                 float space_weight=Math.clamp(shared_space/factor[i],0f,1f);
                 avg_space+=space_weight;
@@ -161,7 +160,7 @@ public class HandlerRemastered extends Handler{
                 train_data.lowPass(train_buffer[i]);
                 mix_buffer[i]+=train_data.filter*current_env.direct_gain;
                 for(int j=0;j<4;j++){
-                    int tail_ptr=head_ptr+i+Constants.send_delays[j];
+                    int tail_ptr=head_ptr+i+RemasteredConst.send_delays[j];
                     if(tail_ptr>=tail_size) tail_ptr-=tail_size;
                     tail_buffers[j][tail_ptr]+=train_data.filters[j];
                 }
@@ -174,9 +173,9 @@ public class HandlerRemastered extends Handler{
                 tail_buffers[j][head_ptr]=0.0;
                 filters[j]+=(current-filters[j])*0.82;
                 wet+=filters[j];
-                int tail_ptr=head_ptr+Constants.send_delays[j];
+                int tail_ptr=head_ptr+RemasteredConst.send_delays[j];
                 if(tail_ptr>=tail_size) tail_ptr-=tail_size;
-                tail_buffers[j][tail_ptr]+=filters[j]*Constants.send_feedbacks[j];
+                tail_buffers[j][tail_ptr]+=filters[j]*RemasteredConst.send_feedbacks[j];
             }
             filter+=(wet-filter)*0.92;
             mix_buffer[i]+=filter;

@@ -1,7 +1,7 @@
-package soundphysics.remastered;
+package soundphysics;
 import createvvvfsim.Configs;
 import java.lang.reflect.Field;
-public class Constants{
+public class RemasteredConst{
     public static final int[] send_delays={
             (int)(Configs.sample_rate*0.0297),
             (int)(Configs.sample_rate*0.0411),
