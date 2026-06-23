@@ -2,34 +2,27 @@ package createvvvfsim;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import genengine.SoundEngine;
+import java.util.function.Supplier;
+import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
-import net.neoforged.neoforge.client.event.ClientPauseChangeEvent;
-import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
-import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+import net.minecraftforge.client.event.RegisterClientCommandsEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.network.NetworkEvent;
 import vvvfsimulator.vvvf.modulation.CustomPwm;
-@EventBusSubscriber(modid=Configs.mod_id,value=Dist.CLIENT)
+@Mod.EventBusSubscriber(modid=Configs.mod_id,value=Dist.CLIENT)
 public class ClientEvents{
     private static final Minecraft mc=Minecraft.getInstance();
     private static final int eval_period=Configs.eval_period;
     private static int eval_current=eval_period;
     static{
         CustomPwm.CustomPwmPresets.preload();
-    }
-    @SubscribeEvent
-    public static void registerModel(RegisterPayloadHandlersEvent event){
-        PayloadRegistrar registrar=event.registrar(Configs.version).optional();
-        registrar.playToClient(TrainSyncModel.model_type,TrainSyncModel.stream_codec,ClientEvents::onGetSpeed);
     }
     @SubscribeEvent
     public static void registerCommand(RegisterClientCommandsEvent event){
@@ -45,12 +38,10 @@ public class ClientEvents{
     public static void onExit(ClientPlayerNetworkEvent.LoggingOut event){
         TrainStatus.clearDataCache();
     }
-    @SubscribeEvent
-    public static void onPauseChange(ClientPauseChangeEvent.Post event){
-        SoundEngine.setAmp(event.isPaused()?0.0:mc.options.getSoundSourceVolume(SoundSource.MASTER));
-    }
-    public static void onGetSpeed(TrainSyncModel model,IPayloadContext ignored){
-        TrainStatus.getServerSpeed(model.train_id(),model.speed());
+    public static void onGetSpeed(TrainSyncModel model,Supplier<NetworkEvent.Context> context){
+        NetworkEvent.Context ctx=context.get();
+        ctx.enqueueWork(()->TrainStatus.getServerSpeed(model.train_id(),model.speed()));
+        ctx.setPacketHandled(true);
     }
     public static int onReload(CommandContext<CommandSourceStack> context){
         Component msg=Component.literal(Configs.command_return);
@@ -59,7 +50,9 @@ public class ClientEvents{
         return 1;
     }
     @SubscribeEvent
-    public static void tick(ClientTickEvent.Post event){
+    public static void tick(TickEvent.ClientTickEvent event){
+        if(event.phase!=TickEvent.Phase.END) return;
+        SoundEngine.setAmp(mc.isPaused()?0.0:mc.options.getSoundSourceVolume(SoundSource.MASTER));
         TrainStatus.tick(mc.level,mc.player);
         if(eval_current==eval_period) eval_current=0;
         TrainStatus.evalTrains(mc.level,mc.player,eval_current);

@@ -6,6 +6,7 @@
 .vscode/
 bin/
 build/
+forgerun/
 run/
 .classpath
 .project

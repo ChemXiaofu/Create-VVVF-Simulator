@@ -127,10 +127,11 @@ public class TrainStatus{
             }
             boolean is_move=speed>1e-2;
             if(is_move && !train_data.is_last_move && near_factor>1e-2){
-                level.playLocalSound(player,SoundEvents.LAVA_EXTINGUISH,SoundSource.NEUTRAL,
-                        (float)(main_amp*gas_amp*near_factor),2f);
-                level.playLocalSound(player,SoundEvents.WOODEN_TRAPDOOR_CLOSE,SoundSource.NEUTRAL,
-                        (float)(main_amp*switch_amp*near_factor),2f);
+                double x=player_pos.x,y=player_pos.y,z=player_pos.z;
+                level.playLocalSound(x,y,z,SoundEvents.LAVA_EXTINGUISH,SoundSource.NEUTRAL,
+                        (float)(main_amp*gas_amp*near_factor),2f,false);
+                level.playLocalSound(x,y,z,SoundEvents.WOODEN_TRAPDOOR_CLOSE,SoundSource.NEUTRAL,
+                        (float)(main_amp*switch_amp*near_factor),2f,false);
             }
             train_data.set(speed,near_factor,far_factor,is_valid,is_move);
         }

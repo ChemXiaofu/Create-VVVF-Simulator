@@ -1,14 +1,35 @@
+import groovy.json.JsonSlurper
+buildscript{
+    repositories{
+        maven{url="https://repo.spongepowered.org/repository/maven-public/"}
+    }
+    dependencies{classpath "org.spongepowered:mixingradle:0.7-SNAPSHOT"}
+}
 plugins{
     id "java-library"
-    id "net.neoforged.moddev" version "2.0.141"
+    id "net.minecraftforge.gradle" version "[6.0.16,6.2)" apply false
+    id "net.neoforged.moddev" version "2.0.141" apply false
     id "maven-publish"
 }
+if(platform=="forge"){
+    apply plugin:"net.minecraftforge.gradle"
+    apply plugin:"org.spongepowered.mixin"
+}
+else if(platform=="neoforge"){
+    apply plugin:"net.neoforged.moddev"
+}
+else throw new GradleException("Fabric/Quilt not supported yet")
+def file=file("versions.json")
+def versions=new JsonSlurper().parseText(file.text)
+def deps=versions[platform][minecraft_version]
 version=mod_version
 group=mod_group_id
 base{archivesName=mod_id}
-java.toolchain.languageVersion=JavaLanguageVersion.of(21)
+java.toolchain.languageVersion=JavaLanguageVersion.of(deps.java)
 repositories{
+    maven{url="https://repo.spongepowered.org/repository/maven-public/"}
     maven{url="https://maven.createmod.net"}
+    maven{url="https://maven.tterrag.com"}
     maven{url="https://maven.ithundxr.dev/snapshots"}
     maven{url="https://maven.maxhenkel.de/repository/public"}
     maven{url="https://maven.isxander.dev/releases"}
@@ -16,21 +37,48 @@ repositories{
     maven{url="https://api.modrinth.com/maven"}
     maven{url="https://thedarkcolour.github.io/KotlinForForge"}
 }
-neoForge{
-    version=project.neo_version
-    runs{
-        client{
-            client()
-            systemProperty "neoforge.enabledGameTestNamespaces",project.mod_id
-        }
-        server{
-            server()
-            programArgument "--nogui"
-            systemProperty "neoforge.enabledGameTestNamespaces",project.mod_id
+sourceSets{
+    main{
+        java{srcDir "src/${platform}/java"}
+    }
+}
+if(platform=="forge"){
+    minecraft{
+        mappings channel:"official",version:minecraft_version
+        runs{
+            client{
+                property "forge.enabledGameTestNamespaces",mod_id
+            }
+            server{
+                property "forge.enabledGameTestNamespaces",mod_id
+                args "--nogui"
+            }
+            configureEach{
+                workingDirectory project.file("forgerun")
+                mods{
+                    "${mod_id}"{source sourceSets.main}
+                }
+            }
         }
     }
-    mods{
-        "${mod_id}"{sourceSet sourceSets.main}
+}
+else if(platform=="neoforge"){
+    neoForge{
+        version="${deps.platform}"
+        runs{
+            client{
+                client()
+                systemProperty "neoforge.enabledGameTestNamespaces",project.mod_id
+            }
+            server{
+                server()
+                programArgument "--nogui"
+                systemProperty "neoforge.enabledGameTestNamespaces",project.mod_id
+            }
+        }
+        mods{
+            "${mod_id}"{sourceSet sourceSets.main}
+        }
     }
 }
 configurations{
@@ -38,19 +86,31 @@ configurations{
     additionalRuntimeClasspath.extendsFrom jarJar
 }
 dependencies{
-    implementation("com.simibubi.create:create-${minecraft_version}:${create_version}:slim"){
-        transitive=false
+    if(platform=="forge"){
+        minecraft("net.minecraftforge:forge:${minecraft_version}-${deps.platform}")
+        annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
+        implementation(fg.deobf("com.simibubi.create:create-${minecraft_version}:${deps.create}:slim")){
+            transitive=false
+        }
+        implementation(fg.deobf("net.createmod.ponder:Ponder-Forge-${minecraft_version}:${deps.ponder}"))
+        compileOnly(fg.deobf("dev.engine-room.flywheel:flywheel-${platform}-api-${minecraft_version}:${deps.flywheel}"))
+        runtimeOnly(fg.deobf("dev.engine-room.flywheel:flywheel-${platform}-${minecraft_version}:${deps.flywheel}"))
+        implementation(fg.deobf("com.tterrag.registrate:Registrate:${deps.registrate}"))
+        implementation("io.github.llamalad7:mixinextras-forge:${deps.mixinextras}")
     }
-    implementation("net.createmod.ponder:ponder-neoforge:${ponder_version}+mc${minecraft_version}")
-    compileOnly("dev.engine-room.flywheel:flywheel-neoforge-api-${minecraft_version}:${flywheel_version}")
-    runtimeOnly("dev.engine-room.flywheel:flywheel-neoforge-${minecraft_version}:${flywheel_version}")
-    implementation("com.tterrag.registrate:Registrate:${registrate_version}")
-    compileOnly("maven.modrinth:sound-physics-remastered:neoforge-${minecraft_version}-${spr_version}")
-    compileOnly("maven.modrinth:sound-physics-perfected:${spp_version}-neoforge")
-    jarJar("com.github.wendykierp:JTransforms:${jtransform_version}"){
+    else if(platform=="neoforge"){
+        implementation("com.simibubi.create:create-${minecraft_version}:${deps.create}:slim"){
+            transitive=false
+        }
+        implementation("net.createmod.ponder:ponder-${platform}:${deps.ponder}+mc${minecraft_version}")
+        compileOnly("dev.engine-room.flywheel:flywheel-${platform}-api-${minecraft_version}:${deps.flywheel}")
+        runtimeOnly("dev.engine-room.flywheel:flywheel-${platform}-${minecraft_version}:${deps.flywheel}")
+        implementation("com.tterrag.registrate:Registrate:${deps.registrate}")
+    }
+    jarJar("com.github.wendykierp:JTransforms:3.1"){
         version{
-            strictly "[${jtransform_version},3.2)"
-            prefer "${jtransform_version}"
+            strictly "[3.1,3.2)"
+            prefer "3.1"
         }
     }
     jarJar("pl.edu.icm:JLargeArrays:1.5"){
@@ -66,15 +126,15 @@ dependencies{
         }
     }
 }
-var replaceProperties=[minecraft_version:minecraft_version,minecraft_version_range:minecraft_version_range,
-                       neo_version:neo_version,neo_version_range:neo_version_range,
-                       loader_version_range:loader_version_range,mod_id:mod_id,mod_name:mod_name,
+var replaceProperties=[minecraft_version:minecraft_version,minecraft_range:deps.minecraft_range,
+                       platform:platform,platform_range:deps.platform_range,
+                       loader_range:deps.loader_range,mod_id:mod_id,mod_name:mod_name,
                        mod_license:mod_license,mod_version:mod_version,mod_authors:mod_authors,
-                       mod_description:mod_description,create_version_range:create_version_range,
-                       spr_version_range:spr_version_range,spp_version_range:spp_version_range]
+                       mod_description:mod_description,create_range:deps.create_range,
+                       spr_range:deps.spr_range,spp_range:deps.spp_range]
 tasks.named("processResources",ProcessResources).configure{
     inputs.properties replaceProperties
-    filesMatching("META-INF/neoforge.mods.toml"){expand replaceProperties}
+    filesMatching(["META-INF/mods.toml","META-INF/neoforge.mods.toml"]){expand replaceProperties}
 }
 publishing{
     publications{

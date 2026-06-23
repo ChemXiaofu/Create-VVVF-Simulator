@@ -1,6 +1,5 @@
 package soundphysics;
 import createvvvfsim.Configs;
-import createvvvfsim.CreateVVVFSim;
 import createvvvfsim.EnvData;
 import createvvvfsim.TrainData;
 import java.lang.reflect.Constructor;
@@ -21,7 +20,7 @@ public class RemasteredHandler extends Handler{
     private static final int buffer_size=Configs.buffer_size;
     private static final double far_distance=Configs.far_distance;
     private static final float angle=(float)(Math.PI*(Math.sqrt(5f)+1f));
-    private static final ResourceLocation sound_id=CreateVVVFSim.sound_id;
+    private static ResourceLocation sound_id;
     private static Constructor<?> constructor;
     private static Method add_direct,add_shared,get_shared,ray_cast;
     private static int head_ptr=0;
@@ -32,6 +31,7 @@ public class RemasteredHandler extends Handler{
     private static double filter=0.0;
     public static boolean register(){
         try{
+            sound_id=ResourceLocation.fromNamespaceAndPath(Configs.mod_id,Configs.sound_name);
             Instance reflected_audio=new Instance("com.sonicether.soundphysics.ReflectedAudio");
             constructor=reflected_audio.getConstructor(double.class,ResourceLocation.class);
             add_direct=reflected_audio.getMethod("addDirectAirspace",Vec3.class);
