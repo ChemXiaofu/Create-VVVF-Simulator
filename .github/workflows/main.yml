@@ -5,6 +5,7 @@ jobs:
   build:
     strategy:
       matrix:
+        platform: [forge, neoforge]
         java: [ 17 ]
     runs-on: ubuntu-latest
     steps:
@@ -32,7 +33,7 @@ jobs:
       - name: build
         run: |
           chmod +x gradlew
-          ./gradlew build
+          ./gradlew build -Pplatform=${{ matrix.platform }}
 
       - name: capture build artifacts
         uses: actions/upload-artifact@v4
