@@ -30,6 +30,7 @@ jobs:
         uses: gradle/wrapper-validation-action@v2
 
       - name: build
+        run: chmod +x gradlew
         run: ./gradlew build
 
       - name: capture build artifacts
