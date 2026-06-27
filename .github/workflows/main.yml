@@ -5,7 +5,7 @@ jobs:
   build:
     strategy:
       matrix:
-        platform: [forge, neoforge]
+        platform: [forge]
         java: [ 17 ]
     runs-on: ubuntu-latest
     steps:
